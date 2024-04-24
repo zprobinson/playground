@@ -5,20 +5,18 @@ open FsToolkit.ErrorHandling
 
 let compose (handler1: MoveHandler) (handler2: MoveHandler) : MoveHandler =
     fun (final: MoveFunc) ->
-        let func = final |> handler2 |> handler1
-
-        func
-
-        // fun (db: DbConnection, containerId: string, locationId: string) ->
-        //     // TODO: What is ctx.Response.HasStarted?
-        //     // https://github.com/giraffe-fsharp/Giraffe/blob/master/src/Giraffe/Core.fs#L99
-        //     match true with
-        //     | true -> final (db, containerId, locationId)
-        //     | false -> func (db, containerId, locationId)
+        final |> handler2 |> handler1
 
 let (>=>) = compose
 
-let earlyReturn: MoveFunc = fun _ -> TaskResult.ok ()
+let private earlyReturnWith (x: MoveFuncResult) =
+    fun (_: DbConnection * ContainerId * LocationId) ->
+        x
+
+let earlyReturn: MoveFunc = earlyReturnWith <| TaskResult.ok ()
+let earlyReturnError (error: Error): MoveFunc =
+    earlyReturnWith <| TaskResult.error error
+
 
 let testHandler1: MoveHandler =
     fun next (db, containerId, locationId) ->
@@ -27,7 +25,7 @@ let testHandler1: MoveHandler =
         }
 
 let testHandler2: MoveHandler =
-    fun next (db, containerId, location) ->
-        TaskResult.error ValidationError
+    fun next ctx ->
+        earlyReturnError Error.ioError ctx
 
 let testHandler3: MoveHandler = testHandler1 >=> testHandler2

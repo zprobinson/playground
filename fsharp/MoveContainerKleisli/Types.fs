@@ -12,6 +12,10 @@ type MoveOption =
 type Error =
 | ValidationError
 | IOError
+module Error =
+    let validationError = ValidationError
+
+    let ioError = IOError
 
 type DbConnection = string
 type ContainerId = string
