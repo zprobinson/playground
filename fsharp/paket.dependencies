@@ -2,3 +2,4 @@ source https://api.nuget.org/v3/index.json
 
 nuget Colorful.Console
 nuget FsToolkit.ErrorHandling
+nuget FsToolkit.ErrorHandling.TaskResult
