@@ -1,10 +1,29 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Effect, Stream, pipe } from "effect"
+import { useEffect, useRef, useState } from "react"
+import "./App.css"
+import reactLogo from "./assets/react.svg"
+import viteLogo from "/vite.svg"
+
+const useButtonClick = (
+  buttonRef: React.RefObject<HTMLButtonElement>,
+  onClick: (e: Event) => void
+) => {
+  useEffect(() => {
+    const unsubscribe = pipe(
+      Stream.fromEventListener(buttonRef.current!, "click"),
+      Stream.tap((event) => Effect.sync(() => onClick(event))),
+      Stream.runDrain,
+      Effect.runCallback
+    )
+    return () => unsubscribe()
+  }, [buttonRef, onClick])
+}
 
 function App() {
   const [count, setCount] = useState(0)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useButtonClick(buttonRef, () => setCount((current) => current + 1))
 
   return (
     <>
@@ -18,9 +37,7 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+        <button ref={buttonRef}>count is {count}</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
