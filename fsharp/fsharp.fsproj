@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FSharpInAction/1/scribble.fs" />
+    <Compile Include="FSharpInAction/2/scribble.fs" />
     <Compile Include="MoveContainerKleisli/Types.fs" />
     <Compile Include="MoveContainerKleisli/Core.fs" />
     <Compile Include="Program.fs" />
